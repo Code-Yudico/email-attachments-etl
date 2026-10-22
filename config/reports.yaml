@@ -1,0 +1,69 @@
+# One entry per report that arrives by email.
+#
+# Adding a new report is a change to this file, not to the Python: the pipeline
+# reads the subject to search for, how to parse each attachment, how to rename
+# its columns and where to load it.
+#
+# The attachments are produced by a system that exports Spanish headers in
+# upper case, so the mapping below turns them into the destination columns.
+
+daily_branch_sales:
+  subject: "Reporte diario de ventas"
+  table: branch_sales
+  date_column: sale_date
+  files:
+    # Delivered zipped, so the pipeline has to unpack it first.
+    - pattern: "ventas_sucursal_*.txt"
+      format: delimited
+      encoding: latin-1
+      separator: "|"
+  columns:
+    FECHA: sale_date
+    CVE_SUCURSAL: branch_code
+    NOM_SUCURSAL: branch_name
+    REGION: region
+    CVE_PRODUCTO: product_code
+    DES_PRODUCTO: product_name
+    CANAL: channel
+    UNIDADES: units
+    IMPORTE_S_IMP: amount_net
+    IMPORTE_C_IMP: amount_gross
+    DESCUENTO: discount
+    VENDEDOR: salesperson
+  dtypes:
+    branch_code: str
+    branch_name: str
+    region: str
+    product_code: str
+    product_name: str
+    channel: str
+    units: int64
+    amount_net: float64
+    amount_gross: float64
+    discount: float64
+    salesperson: str
+
+inventory_movements:
+  subject: "Movimientos de inventario"
+  table: inventory_movements
+  date_column: movement_date
+  files:
+    - pattern: "inventario_*.xlsx"
+      format: excel
+  columns:
+    FECHA: movement_date
+    CVE_SUCURSAL: branch_code
+    CVE_PRODUCTO: product_code
+    DES_PRODUCTO: product_name
+    TIPO_MOVIMIENTO: movement_type
+    CANTIDAD: quantity
+    EXISTENCIA_FINAL: ending_stock
+    ALMACEN: warehouse
+  dtypes:
+    branch_code: str
+    product_code: str
+    product_name: str
+    movement_type: str
+    quantity: int64
+    ending_stock: int64
+    warehouse: str
